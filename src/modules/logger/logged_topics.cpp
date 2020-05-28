@@ -70,7 +70,7 @@ void LoggedTopics::add_default_topics()
 	add_topic("position_controller_status", 500);
 	add_topic("position_setpoint_triplet", 200);
 	add_topic("radio_status");
-	add_topic("rate_ctrl_status", 200);
+	add_topic("rate_ctrl_status", 100);
 	add_topic("rpm", 500);
 	add_topic("safety", 1000);
 	add_topic("sensor_combined", 100);
@@ -81,9 +81,10 @@ void LoggedTopics::add_default_topics()
 	add_topic("tecs_status", 200);
 	add_topic("trajectory_setpoint", 200);
 	add_topic("vehicle_air_data", 200);
+	add_topic("vehicle_angular_acceleration", 20);
 	add_topic("vehicle_angular_velocity", 20);
 	add_topic("vehicle_attitude", 50);
-	add_topic("vehicle_attitude_setpoint", 100);
+	add_topic("vehicle_attitude_setpoint", 50);
 	add_topic("vehicle_command");
 	add_topic("vehicle_global_position", 200);
 	add_topic("vehicle_land_detected");
@@ -122,12 +123,18 @@ void LoggedTopics::add_default_topics()
 	add_topic("actuator_controls_virtual_mc");
 	add_topic("fw_virtual_attitude_setpoint");
 	add_topic("mc_virtual_attitude_setpoint");
+	add_topic("rate_ctrl_status"); // unlimited
 	add_topic("time_offset");
-	add_topic("vehicle_angular_acceleration", 10);
-	add_topic("vehicle_angular_velocity", 10);
+	add_topic("vehicle_angular_acceleration"); // unlimited
+	add_topic("vehicle_angular_velocity"); // unlimited
+	add_topic("vehicle_angular_velocity_groundtruth");
+	add_topic("vehicle_attitude"); // unlimited
 	add_topic("vehicle_attitude_groundtruth", 10);
+	add_topic("vehicle_attitude_setpoint"); // unlimited
 	add_topic("vehicle_global_position_groundtruth", 100);
+	add_topic("vehicle_local_position"); // unlimited
 	add_topic("vehicle_local_position_groundtruth", 100);
+	add_topic("vehicle_local_position_setpoint"); // unlimited
 #endif /* CONFIG_ARCH_BOARD_PX4_SITL */
 }
 

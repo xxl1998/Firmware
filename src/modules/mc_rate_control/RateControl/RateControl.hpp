@@ -1,6 +1,6 @@
 /****************************************************************************
  *
- *   Copyright (c) 2019 PX4 Development Team. All rights reserved.
+ *   Copyright (c) 2019-2020 PX4 Development Team. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -40,8 +40,8 @@
 #pragma once
 
 #include <matrix/matrix/math.hpp>
-#include <mathlib/math/filter/LowPassFilter2pVector3f.hpp>
-
+#include <lib/ecl/filters/AlphaFilter.hpp>
+#include <lib/mathlib/math/filter/LowPassFilter2pVector3f.hpp>
 #include <lib/mixer/MultirotorMixer/MultirotorMixer.hpp>
 #include <uORB/topics/rate_ctrl_status.h>
 
@@ -63,7 +63,7 @@ public:
 	 * Set the mximum absolute value of the integrator for all axes
 	 * @param integrator_limit limit value for all axes x, y, z
 	 */
-	void setIntegratorLimit(const matrix::Vector3f &integrator_limit) { _lim_int = integrator_limit; };
+	void setIntegratorLimit(const matrix::Vector3f &integrator_limit) { _lim_int = integrator_limit; }
 
 	/**
 	 * Set direct rate to torque feed forward gain
@@ -71,6 +71,13 @@ public:
 	 * @param FF 3D vector of feed forward gains for body x,y,z axis
 	 */
 	void setFeedForwardGain(const matrix::Vector3f &FF) { _gain_ff = FF; };
+
+	/**
+	 * Set setpoint filter time constant
+	 * @see _setpoint_filter_time_constant
+	 * @param time_constant Time constant in seconds
+	 */
+	void setSetpointFilterTimeConstant(float time_constant) { _setpoint_filter.setTimeConstant(time_constant); }
 
 	/**
 	 * Set saturation status
@@ -96,12 +103,11 @@ public:
 
 	/**
 	 * Get status message of controller for logging/debugging
-	 * @param rate_ctrl_status status message to fill with internal states
 	 */
-	void getRateControlStatus(rate_ctrl_status_s &rate_ctrl_status);
+	rate_ctrl_status_s getRateControlStatus() const;
 
 private:
-	void updateIntegral(matrix::Vector3f &rate_error, const float dt);
+	void updateIntegral(matrix::Vector3f rate_error, const float dt);
 
 	// Gains
 	matrix::Vector3f _gain_p; ///< rate control proportional gain for all axes x, y, z
@@ -112,6 +118,9 @@ private:
 
 	// States
 	matrix::Vector3f _rate_int; ///< integral term of the rate controller
+
+	// setpoint filter
+	AlphaFilter<matrix::Vector3f> _setpoint_filter;
 
 	bool _mixer_saturation_positive[3] {};
 	bool _mixer_saturation_negative[3] {};

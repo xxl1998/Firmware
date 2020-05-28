@@ -1,6 +1,6 @@
 /****************************************************************************
  *
- *   Copyright (c) 2013-2019 PX4 Development Team. All rights reserved.
+ *   Copyright (c) 2013-2020 PX4 Development Team. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -88,6 +88,7 @@ MulticopterRateControl::parameters_updated()
 	_rate_control.setFeedForwardGain(
 		Vector3f(_param_mc_rollrate_ff.get(), _param_mc_pitchrate_ff.get(), _param_mc_yawrate_ff.get()));
 
+	_rate_control.setSetpointFilterTimeConstant(_param_mc_rate_sp_tau.get());
 
 	// manual rate control acro mode rate limits
 	_acro_rate_max = Vector3f(radians(_param_mc_acro_r_max.get()), radians(_param_mc_acro_p_max.get()),
@@ -268,9 +269,9 @@ MulticopterRateControl::Run()
 			const Vector3f att_control = _rate_control.update(rates, _rates_sp, angular_accel, dt, _maybe_landed || _landed);
 
 			// publish rate controller status
-			rate_ctrl_status_s rate_ctrl_status{};
-			_rate_control.getRateControlStatus(rate_ctrl_status);
+			rate_ctrl_status_s rate_ctrl_status{_rate_control.getRateControlStatus()};
 			rate_ctrl_status.timestamp = hrt_absolute_time();
+
 			_controller_status_pub.publish(rate_ctrl_status);
 
 			// publish actuator controls

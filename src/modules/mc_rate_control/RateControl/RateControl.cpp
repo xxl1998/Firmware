@@ -1,6 +1,6 @@
 /****************************************************************************
  *
- *   Copyright (c) 2019 PX4 Development Team. All rights reserved.
+ *   Copyright (c) 2019-2020 PX4 Development Team. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -60,8 +60,11 @@ void RateControl::setSaturationStatus(const MultirotorMixer::saturation_status &
 Vector3f RateControl::update(const Vector3f &rate, const Vector3f &rate_sp, const Vector3f &angular_accel,
 			     const float dt, const bool landed)
 {
+	// setpoint filtering
+	const Vector3f filtered_setpoint{_setpoint_filter.update(rate_sp, dt)};
+
 	// angular rates error
-	Vector3f rate_error = rate_sp - rate;
+	const Vector3f rate_error = filtered_setpoint - rate;
 
 	// PID control with feed forward
 	const Vector3f torque = _gain_p.emult(rate_error) + _rate_int - _gain_d.emult(angular_accel) + _gain_ff.emult(rate_sp);
@@ -74,7 +77,7 @@ Vector3f RateControl::update(const Vector3f &rate, const Vector3f &rate_sp, cons
 	return torque;
 }
 
-void RateControl::updateIntegral(Vector3f &rate_error, const float dt)
+void RateControl::updateIntegral(Vector3f rate_error, const float dt)
 {
 	for (int i = 0; i < 3; i++) {
 		// prevent further positive control saturation
@@ -106,9 +109,17 @@ void RateControl::updateIntegral(Vector3f &rate_error, const float dt)
 	}
 }
 
-void RateControl::getRateControlStatus(rate_ctrl_status_s &rate_ctrl_status)
+rate_ctrl_status_s RateControl::getRateControlStatus() const
 {
+	rate_ctrl_status_s rate_ctrl_status{};
+
+	rate_ctrl_status.rollspeed_setpoint = _setpoint_filter.getState()(0);
+	rate_ctrl_status.pitchspeed_setpoint = _setpoint_filter.getState()(1);
+	rate_ctrl_status.yawspeed_setpoint = _setpoint_filter.getState()(2);
+
 	rate_ctrl_status.rollspeed_integ = _rate_int(0);
 	rate_ctrl_status.pitchspeed_integ = _rate_int(1);
 	rate_ctrl_status.yawspeed_integ = _rate_int(2);
+
+	return rate_ctrl_status;
 }
