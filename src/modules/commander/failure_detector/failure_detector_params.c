@@ -55,7 +55,7 @@
  *
  * @min 60
  * @max 180
- * @unit degrees
+ * @unit deg
  * @group Failure Detector
  */
 PARAM_DEFINE_INT32(FD_FAIL_R, 60);
@@ -73,7 +73,7 @@ PARAM_DEFINE_INT32(FD_FAIL_R, 60);
  *
  * @min 60
  * @max 180
- * @unit degrees
+ * @unit deg
  * @group Failure Detector
  */
 PARAM_DEFINE_INT32(FD_FAIL_P, 60);
@@ -123,9 +123,21 @@ PARAM_DEFINE_INT32(FD_EXT_ATS_EN, 0);
  *
  * External ATS is required by ASTM F3322-18.
  *
- * @unit microseconds
+ * @unit us
  * @decimal 2
  *
  * @group Failure Detector
  */
 PARAM_DEFINE_INT32(FD_EXT_ATS_TRIG, 1900);
+
+/**
+ * Enable checks on ESCs that report their arming state.
+ * If enabled, failure detector will verify that all the ESCs have successfully armed when the vehicle has transitioned to the armed state.
+ * Timeout for receiving an acknowledgement from the ESCs is 0.3s, if no feedback is received the failure detector will auto disarm the vehicle.
+ *
+ * @boolean
+ * @reboot_required true
+ *
+ * @group Failure Detector
+ */
+PARAM_DEFINE_INT32(FD_ESCS_EN, 1);
